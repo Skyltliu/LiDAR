@@ -1,0 +1,20 @@
+# Ignore user-specific and build files
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+.vs/
+.vscode/
+*.VC.db
+*.sln
+
+# Ignore built assets
+*.pdb
+*.ipdb
+*.iobj
+
+
+[Dd]esktop.ini
+[Tt]humbs.db
+.DS_Store
