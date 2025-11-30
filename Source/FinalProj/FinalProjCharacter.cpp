@@ -61,7 +61,7 @@ void AFinalProjCharacter::BeginPlay() {
 	Super::BeginPlay();
 	if (ISMReference)
 	{
-		ISMReference->NumCustomDataFloats = 3;
+		ISMReference->NumCustomDataFloats = 4;
 	}
 	/*
 	TArray<AActor*> BrushActors;
@@ -257,6 +257,7 @@ void AFinalProjCharacter::ScanArea() {
 			}
 			bool bLongDots = false;
 			bool isBlue = false;
+			bool isText = false;
 			if (HitActor && HitActor->ActorHasTag(FName("LongDots")))
 			{
 				bLongDots = true;
@@ -264,6 +265,10 @@ void AFinalProjCharacter::ScanArea() {
 			if (HitActor && HitActor->ActorHasTag(FName("Blue")))
 			{
 				isBlue = true;
+			}
+			if (HitActor && HitActor->ActorHasTag(FName("Text")))
+			{
+				isText = true;
 			}
 			FTransform T;
 			T.SetLocation(Hit.ImpactPoint);
@@ -289,10 +294,13 @@ void AFinalProjCharacter::ScanArea() {
 				if (isBlue) {
 					Color = FVector(0.f, 0.f, 1.f);
 				}
+				if (isText) {
+					Color = FVector(1.f, 0.f, 0.f);
+				}
 				ISMReference->SetCustomDataValue(NewIndex, 0, Color.X, true);
 				ISMReference->SetCustomDataValue(NewIndex, 1, Color.Y, true);
 				ISMReference->SetCustomDataValue(NewIndex, 2, Color.Z, true);
-				float flag = bHitEnemy ? 1.0f : 0.0f;
+				float flag = isText ? 1.0f : 0.0f;
 				ISMReference->SetCustomDataValue(NewIndex, 3, flag, true);
 			}
 		}

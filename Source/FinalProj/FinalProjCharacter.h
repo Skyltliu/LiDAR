@@ -60,7 +60,7 @@ public:
 	FTimerHandle ScanTimer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lidar")
-	int32 PointsPerFrame = 1100;//250;
+	int32 PointsPerFrame = 2200;//250;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lidar")
 	float ScannerRange = 8000.0;
