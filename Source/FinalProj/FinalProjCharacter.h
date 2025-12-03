@@ -7,13 +7,14 @@
 #include "Logging/LogMacros.h"
 #include "InputActionValue.h" 
 #include "FinalProjCharacter.generated.h"
-
 class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 class UInstancedStaticMeshComponent;
+class UNiagaraSystem;
+class UNiagaraComponent;
 /**
  *  A basic first person character
  */
@@ -56,17 +57,17 @@ public:
 
 	/** How often TimerComplete runs */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scan")
-	float DecayTickInterval = 0.05f; // 20 Hz
+	float DecayTickInterval = 0.5f; // 20 Hz
 	FTimerHandle ScanTimer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lidar")
-	int32 PointsPerFrame = 2200;//250;
+	int32 PointsPerFrame = 1750;//2200;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lidar")
-	float ScannerRange = 8000.0;
+	float ScannerRange = 1475.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lidar")
-	float ScannerAngle = 14.0;
+	float ScannerAngle = 60.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lidar")
 	float ScanDuration = 30.0;
@@ -126,6 +127,17 @@ public:
 
 	/** Returns first person camera component **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "LiDAR")
+	bool bLiDAREnabled = true;
+
+
+	UFUNCTION(BlueprintCallable, Category = "LiDAR")
+	void SetLiDAREnabled(bool bEnabled);
+
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "LiDAR")
+	bool IsLiDAREnabled() const { return bLiDAREnabled; }
 private:
 	UFUNCTION(BlueprintCallable, Category = "Lidar")
 	void AddPoints();
@@ -136,8 +148,7 @@ private:
 	void MakeStartEnd(FVector& OutStart, FVector& OutEnd) const;
 	bool bBSPInitialized = false;
 	void HideAllBSPAndModels();
-
-
+	
 	/*
 	void OnScanTimerComplete();
 	*/

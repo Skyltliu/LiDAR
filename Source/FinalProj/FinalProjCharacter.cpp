@@ -15,6 +15,9 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h" 
 #include "FinalProj.h"
 #define DELAY(time, block)\
 {\
@@ -43,7 +46,7 @@ AFinalProjCharacter::AFinalProjCharacter()
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 	FirstPersonCameraComponent->bEnableFirstPersonFieldOfView = true;
 	FirstPersonCameraComponent->bEnableFirstPersonScale = true;
-	FirstPersonCameraComponent->FirstPersonFieldOfView = 70.0f;
+	FirstPersonCameraComponent->FirstPersonFieldOfView = 120.0f;
 	FirstPersonCameraComponent->FirstPersonScale = 0.6f;
 
 	// configure the character comps
@@ -55,6 +58,7 @@ AFinalProjCharacter::AFinalProjCharacter()
 	// Configure character movement
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->AirControl = 0.5f;
+
 }
 
 void AFinalProjCharacter::BeginPlay() {
@@ -63,38 +67,15 @@ void AFinalProjCharacter::BeginPlay() {
 	{
 		ISMReference->NumCustomDataFloats = 4;
 	}
-	/*
-	TArray<AActor*> BrushActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABrush::StaticClass(), BrushActors);
-	for (AActor* A : BrushActors)
-	{
-		TArray<UBrushComponent*> Comps;
-		A->GetComponents<UBrushComponent>(Comps);
-		for (UBrushComponent* C : Comps)
-		{
-			C->SetHiddenInGame(true, true);
-			C->SetVisibility(false, true);
-			C->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		}
-	}
-	TArray<AActor*> AllActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), AllActors);
-	for (AActor* A : AllActors)
-	{
-		TArray<UModelComponent*> Models;
-		A->GetComponents<UModelComponent>(Models);
-		for (UModelComponent* MC : Models)
-		{
-			MC->SetHiddenInGame(true, true);
-			MC->SetVisibility(false, true);
-			MC->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-
-	}
-	*/
 }
 
+
+void AFinalProjCharacter::SetLiDAREnabled(bool bEnabled)
+{
+	bLiDAREnabled = bEnabled;
+
+}
 void AFinalProjCharacter::AddPoints() {
 	const bool bIsTimerValid = GetWorldTimerManager().IsTimerActive(ScanTimer);
 	float ElapsedTime = 0.0f;
@@ -109,31 +90,7 @@ void AFinalProjCharacter::AddPoints() {
 		InstanceArray.Add(ScanDuration);
 	}
 }
-/*
-void AFinalProjCharacter::TimerComplete() {
-	const float Elapsed = GetWorldTimerManager().GetTimerElapsed(ScanTimer);
-	if ((InstanceArray[0] - Elapsed) <= 0.021f) {
-		for (int32 k = 0; k < PointsPerFrame; ++k) {
-			const int32 Count = ISMReference->GetInstanceCount();
-			if (Count <= 0) {
-				break;
-			}
-			ISMReference->RemoveInstance(0);
-		}
-		if (InstanceArray.Num() > 0) {
-			InstanceArray.RemoveAt(0);
-		}
-	}
-	else {
-		InstanceArray[0] = InstanceArray[0] - Elapsed;
-	}
-	if (InstanceArray.Num() == 0) {
-		GetWorldTimerManager().ClearTimer(ScanTimer);
-		return;
-	}
-	GetWorldTimerManager().SetTimer(ScanTimer,this,&AFinalProjCharacter::TimerComplete,InstanceArray[0],true);
-}
-*/
+
 
 void AFinalProjCharacter::TimerComplete() {
 	UWorld* World = GetWorld();
@@ -147,6 +104,7 @@ void AFinalProjCharacter::TimerComplete() {
 	}
 	const float Dt = DecayTickInterval > 0.f ? DecayTickInterval : 0.05f;
 	for (int32 i = InstanceLifetimes.Num() - 1; i >= 0; --i) {
+		if (InstanceLifetimes[i] == -1) continue;
 		InstanceLifetimes[i] -= Dt;
 		if (InstanceLifetimes[i] <= 0.f) {
 			if (ISMReference->GetInstanceCount() > i) {
@@ -217,9 +175,8 @@ void AFinalProjCharacter::HideAllBSPAndModels()
 	}
 
 }
-
-
 void AFinalProjCharacter::ScanArea() {
+	if (!bLiDAREnabled) return;
 	if (!ISMReference) return;
 	if (!bBSPInitialized) {
 		// HideAllBSPAndModels();
@@ -258,6 +215,7 @@ void AFinalProjCharacter::ScanArea() {
 			bool bLongDots = false;
 			bool isBlue = false;
 			bool isText = false;
+			bool isVegetation = false;
 			if (HitActor && HitActor->ActorHasTag(FName("LongDots")))
 			{
 				bLongDots = true;
@@ -269,6 +227,10 @@ void AFinalProjCharacter::ScanArea() {
 			if (HitActor && HitActor->ActorHasTag(FName("Text")))
 			{
 				isText = true;
+				//continue;
+			}
+			if (HitActor && HitActor->ActorHasTag(FName("Vegetation"))) {
+				isVegetation = true;
 			}
 			FTransform T;
 			T.SetLocation(Hit.ImpactPoint);
@@ -279,7 +241,7 @@ void AFinalProjCharacter::ScanArea() {
 					InstanceLifetimes.SetNum(NewIndex + 1);
 				}
 				if (!bHitEnemy) {
-					InstanceLifetimes[NewIndex] = ScanDuration;
+					InstanceLifetimes[NewIndex] = -1;
 
 				}
 				else {
@@ -296,6 +258,9 @@ void AFinalProjCharacter::ScanArea() {
 				}
 				if (isText) {
 					Color = FVector(1.f, 0.f, 0.f);
+				} 
+				if (isVegetation) {
+					Color = FVector(0.f, 1.f, 0.f);
 				}
 				ISMReference->SetCustomDataValue(NewIndex, 0, Color.X, true);
 				ISMReference->SetCustomDataValue(NewIndex, 1, Color.Y, true);

@@ -17,6 +17,11 @@ class FINALPROJ_API AFinalProjGameMode : public AGameModeBase
 public:
 	AFinalProjGameMode();
 
+	UFUNCTION(BlueprintCallable, Category = "Lidar")
+	void HideVegetation();
+
+	UFUNCTION(BlueprintCallable, Category = "Lidar")
+	void HideText();
 };
 
 
