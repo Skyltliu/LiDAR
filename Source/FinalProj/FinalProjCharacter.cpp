@@ -69,12 +69,24 @@ void AFinalProjCharacter::BeginPlay() {
 	}
 
 }
-
-
+void AFinalProjCharacter::SetDotNumber(int32 number) {
+	PointsPerFrame = number;
+}
+void AFinalProjCharacter::SetRange(float dist) {
+	ScannerRange = dist;
+}
+void AFinalProjCharacter::SetAngle(float angle) {
+	ScannerAngle = angle;
+}
 void AFinalProjCharacter::SetLiDAREnabled(bool bEnabled)
 {
 	bLiDAREnabled = bEnabled;
 
+}
+void AFinalProjCharacter::reset_properties() {
+	PointsPerFrame = DEFAULT_DOTS;
+	ScannerRange = DEFAULT_RANGE;
+	ScannerAngle = DEFAULT_ANGLE;
 }
 void AFinalProjCharacter::AddPoints() {
 	const bool bIsTimerValid = GetWorldTimerManager().IsTimerActive(ScanTimer);

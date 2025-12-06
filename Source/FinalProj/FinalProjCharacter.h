@@ -7,6 +7,15 @@
 #include "Logging/LogMacros.h"
 #include "InputActionValue.h" 
 #include "FinalProjCharacter.generated.h"
+#define DEFAULT_RANGE 1475.0f;
+#define DEFAULT_ANGLE 60.0f;
+#define DEFAULT_DOTS 1750;
+#define DEFAULT_SHORT_RANGE 1000.0f;
+#define DEFAULT_SHORT_ANGLE 15.0f;
+#define DEFAULT_SHORT_DOTS 500;
+#define DEFAULT_LONG_RANGE 2000.0f;
+#define DEFAULT_LONG_ANGLE 120.0f;
+#define DEFAULT_LONG_DOTS 3000;
 class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -138,6 +147,17 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "LiDAR")
 	bool IsLiDAREnabled() const { return bLiDAREnabled; }
+
+
+	UFUNCTION(BlueprintCallable, Category = "LiDAR")
+	void SetAngle(float angle);
+	UFUNCTION(BlueprintCallable, Category = "LiDAR")
+	void SetRange(float dist);
+	UFUNCTION(BlueprintCallable, Category = "LiDAR")
+	void SetDotNumber(int32 number);
+
+	UFUNCTION(BlueprintCallable, Category = "LiDAR")
+	void reset_properties();
 private:
 	UFUNCTION(BlueprintCallable, Category = "Lidar")
 	void AddPoints();
