@@ -1,5 +1,5 @@
-Extract the improvedDemo.zip folder.
-Open the folder, and click on the .exe file.
+Extract the improvedDemo.zip folder,
+open the folder, and click on the .exe file.
 https://drive.google.com/file/d/1v0tiajf8ZZJ7GQ1BNSkE9hNMBbm_zcYK/view?usp=sharing
 
 通过网盘分享的文件：improvedDemo.zip
